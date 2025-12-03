@@ -53,10 +53,13 @@ sigma_g = zeros(num_samples, 1);
 calculate_mode_N = 1;
 for i = 1:num_samples
     current_dN = dN(i, :);
+    smoothed_dN = smoothdata(current_dN, 'sgolay', 7);
     
     % calculate mode diameter
-    idx = current_dN == max(current_dN);
-    mode_D(i, 1) = mean(D(idx));
+    % idx = current_dN == max(current_dN);
+    % mode_D(i, 1) = mean(D(idx));
+    [~, iMax] = max(smoothed_dN);
+    mode_D(i, 1) = D(iMax);
 
     % calculate geometric mean diameter, geometric standard deviation
     logDp = log10(D);
