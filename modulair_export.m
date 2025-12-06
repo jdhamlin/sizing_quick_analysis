@@ -25,7 +25,11 @@ serial_no = string(data.sn(1));
 
 % flip data so it reads chronologically
 data = flipud(data);
+
+% extract dN data
 dN = table2array(data(:,7:30));
+
+% calculate dN/dlogDp
 dNdlog10Dp = dN.*dD./dlogDp;
 dN_1 = dN./dlogDp;
 % dlogDp = 0.0824;
@@ -33,16 +37,12 @@ dN_1 = dN./dlogDp;
 
 % Extract datetime
 dateStr = string(data.timestamp_local);
-% t = flipud(datetime(dateStr, 'InputFormat', 'uuuu-MM-dd''T''HH:mm:ss''Z'));
 t = datetime(dateStr, 'InputFormat', 'uuuu-MM-dd''T''HH:mm:ss''Z');
-% t.TimeZone = 'America/Los_Angeles';
 
 
 % Calculate total number
 for i = 1:length(dNdlog10Dp)
-    % N(i,1) = flipud(trapz(log10(Dp), dNdlog10Dp(i,:)));
     N(i,1) = trapz(log10(Dp), dNdlog10Dp(i,:));
-
 end
 
 
