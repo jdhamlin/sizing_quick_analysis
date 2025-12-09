@@ -53,8 +53,9 @@ sigma_g = zeros(num_samples, 1);
 calculate_mode_N = 1;
 for i = 1:num_samples
     current_dN = dN(i, :);
-    smoothed_dN = smoothdata(current_dN, 'sgolay', 7);
-    
+    % smoothed_dN = smoothdata(current_dN, 'sgolay', 7);
+    smoothed_dN = smoothdata(current_dN, 'movmean', 21);
+
     % calculate mode diameter
     % idx = current_dN == max(current_dN);
     % mode_D(i, 1) = mean(D(idx));
