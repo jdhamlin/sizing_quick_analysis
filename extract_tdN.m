@@ -9,14 +9,13 @@ function T = extract_tdN(cellData)
 %              - dN : numeric matrix (rows must match t length)
 %   T        : table with datetime column 't' and numeric matrix column 'dN'
 
-
     numCols = cellfun(@(x) size(x.dN, 2), cellData);
-    refCols = numCols(1);
+    [refCols, refIdx] = max(numCols);
 
     % resize smps_aps data for future analysis
     non_matching_idx = find(numCols ~= refCols);
     for i = non_matching_idx
-        D_correct = cellData{1}.D;
+        D_correct = cellData{refIdx}.D;
         D_incorrect = cellData{i}.D;
         dN_incorrect = cellData{i}.dN;
 
@@ -30,9 +29,26 @@ function T = extract_tdN(cellData)
        cellData{i}.dN = dN_corrected;
 
        % replace negative values with 0
-       cellData{i}.dN(:,1:141) = 0;
-       cellData{i}.dN(cellData{i}.dN < 0) = 0;
+       if refCols == 384
+           cellData{i}.dN(:,1:141) = 0;
+           cellData{i}.dN(cellData{i}.dN < 0) = 0;
+       else
+       end
     end
+
+    % find and create list of fieldnames
+    allFieldLists = cellfun(@(s) cellstr(fieldnames(s)), cellData, ...
+                        'UniformOutput', false);
+    allFields = unique(vertcat(allFieldLists{:}));
+
+    % create blank cell for instances with missing data for a fieldname
+    for i = 1:numel(cellData)
+        missing = setdiff(allFields, fieldnames(cellData{i}));
+        for m = 1:numel(missing)
+            cellData{i}.(missing{m}) = [];   % or NaN, etc.
+        end
+    end
+
     % Flatten cell array into struct array
     S = [cellData{:}];
 
