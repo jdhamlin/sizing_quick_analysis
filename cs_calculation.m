@@ -20,11 +20,13 @@ lambda = 0.66e-6; % m; gas mean free path
 D_SA = 0.8e-5; % diffusion coefficient of H2SO4
 
 %%% unit conversions
-% check that diameter units are in nm (if not, issue warning and convert)
-if D(1) < 1
-    warning('cs_calculation converted D units to nm for CS calculation')
-    D = D*1000;
-else
+% if units are in m, convert to nm
+if max(D) < 1e-6
+    D = D * 1e9;
+
+    % if units in um, convert to nm
+elseif max(D) < 1
+    D = D * 1e3;
 end
 
 % D from nm to m
