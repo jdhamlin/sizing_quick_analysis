@@ -11,6 +11,8 @@ scripts to quickly process and visualize data from aerosol sizing instruments
 3. "Sizing\_Merge.m" - Merge size distribution data from an electrical mobility spectrometer with an optical particle counter or aerodynamic particle sizer. This version has weighting set for merging SMPS-APS distributions
 4. "Sizing\_Merge2.m" - Merge size distribution data from an electrical mobility spectrometer with an optical particle counter or aerodynamic particle sizer. This version has weighting set for merging SM-OPS distributions
 5. "modulair\_export.m" - extract variables of interest from modulair .csv file for subsequent analysis
+6. "SQA_smps_3938.m" - quickly process data from a Scanning Mobility Particle Sizer model 3938 (TSI Inc.) generates figures and saves data as .mat file for subequent analysis.
+7. "smps_3938_export.m" - read in data from a Scanning Mobility Particle Sizer model 3938 (TSI Inc.)
 
 
 
