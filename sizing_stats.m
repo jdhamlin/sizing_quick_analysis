@@ -21,7 +21,7 @@
 %   1) Updated to identify if D units are in nm and convert to nm if not.
 
 function [mode_D, N_nucleation, N_aitken, N_accumulation, N_submicron, ...
-    N_supermicron, Dg, sigma_g] = sizing_stats(D, dN)
+    N_supermicron, N, Dg, sigma_g] = sizing_stats(D, dN)
 
 % check that diameter units are in nm (if not, issue warning and convert)
 if D(1) < 1
@@ -53,8 +53,12 @@ sigma_g = zeros(num_samples, 1);
 calculate_mode_N = 1;
 for i = 1:num_samples
     current_dN = dN(i, :);
-    % smoothed_dN = smoothdata(current_dN, 'sgolay', 7);
-    smoothed_dN = smoothdata(current_dN, 'movmean', 21);
+    N(i, 1) = trapz(log10(D), current_dN);
+    % smooth data over time scale
+    smoothed_dN = smoothdata(current_dN, 1, 'movmean', 21);
+
+    % smooth data over size scale
+    smoothed_dN = smoothdata(smoothed_dN, 2, 'movmean', 4);
 
     % calculate mode diameter
     % idx = current_dN == max(current_dN);

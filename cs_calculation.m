@@ -50,7 +50,7 @@ Beta_m = (1 + Kn) ./ (1 + 1.677 * Kn + 1.333 * Kn.^2); % unitless
 % calculate condensation sink
 CS = zeros(size(dN, 1), 1);
 for i = 1:size(dN, 1)
-    CS(i,1) = 2*pi*D_SA*sum(Beta_m .* Dp .* dN(i,:) .* dlogDp);
+    CS(i,1) = 2*pi*D_SA*sum(Beta_m .* Dp .* (dN(i,:) .* dlogDp));
 end
 
 return
