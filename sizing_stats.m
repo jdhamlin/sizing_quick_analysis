@@ -30,10 +30,11 @@ if D(1) < 1
 else
 end
 
-[~, idx_20] = min(abs(D - 20));
-[~, idx_100] = min(abs(D - 100));
-[~, idx_1000] = min(abs(D - 1000));
-
+idx_nucleation = D < 20;
+idx_aitken = D >= 20   & D < 100;
+idx_accumulation = D >= 100  & D < 1000;
+idx_submicron = D < 1000;
+idx_supermicron = D >= 1000;
 
 % identify number of samples and size bins
 [num_samples, num_bins] = size(dN);
@@ -48,9 +49,6 @@ N_supermicron = zeros(num_samples, 1);
 Dg = zeros(num_samples, 1);
 sigma_g = zeros(num_samples, 1);
 
-% prompt user to calculate mode number or skip
-% calculate_mode_N = input('enter 1 to calculate mode number concentration or 0 to skip:\n');
-calculate_mode_N = 1;
 for i = 1:num_samples
     current_dN = dN(i, :);
     N(i, 1) = trapz(log10(D), current_dN);
@@ -61,8 +59,6 @@ for i = 1:num_samples
     smoothed_dN = smoothdata(smoothed_dN, 2, 'movmean', 4);
 
     % calculate mode diameter
-    % idx = current_dN == max(current_dN);
-    % mode_D(i, 1) = mean(D(idx));
     [~, iMax] = max(smoothed_dN);
     mode_D(i, 1) = D(iMax);
 
@@ -73,34 +69,32 @@ for i = 1:num_samples
     logVariance = sum(current_dN .* (logDp - logDg).^2) / sum(current_dN);
     sigma_g(i, 1) = 10^sqrt(logVariance);
 
-    if calculate_mode_N == 1
     % calculate mode number concentrations
-
-        if idx_20 == idx_100
-            N_nucleation(i, 1) = NaN;
-            N_aitken(i, 1) = NaN;
-        else
-            N_nucleation(i, 1) = ...
-                trapz(log10(D(1:idx_20)), current_dN(1:idx_20));
-            N_aitken(i, 1) = ...
-                trapz(log10(D(idx_20:idx_100)), current_dN(idx_20:idx_100));
-        end
-
-
-        N_accumulation(i, 1) = ...
-            trapz(log10(D(idx_100:idx_1000)), current_dN(idx_100:idx_1000));
-
-        N_submicron(i, 1) = ...
-            trapz(log10(D(1:idx_1000)), current_dN(1:idx_1000));
-
-
-        if idx_1000 == size(D, 2)
-            N_supermicron(i, 1) = NaN;
-        else
-            N_supermicron(i, 1) = ...
-                trapz(log10(D(idx_1000:end)), current_dN(idx_1000:end));
-        end
+    if ~any(idx_nucleation)
+        N_nucleation(i, 1) = NaN;
+    end
+    if ~any(idx_aitken)
+        N_aitken(i, 1) = NaN;
     else
+        N_nucleation(i, 1) = ...
+            trapz(log10(D(idx_nucleation)), current_dN(idx_nucleation));
+        N_aitken(i, 1) = ...
+            trapz(log10(D(idx_aitken)), current_dN(idx_aitken));
+    end
+
+
+    N_accumulation(i, 1) = ...
+        trapz(log10(D(idx_accumulation)), current_dN(idx_accumulation));
+
+    N_submicron(i, 1) = ...
+        trapz(log10(D(idx_submicron)), current_dN(idx_submicron));
+
+
+    if ~any(idx_supermicron)
+        N_supermicron(i, 1) = NaN;
+    else
+        N_supermicron(i, 1) = ...
+            trapz(log10(D(idx_supermicron)), current_dN(idx_supermicron));
     end
 end
 
