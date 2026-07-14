@@ -3,10 +3,10 @@
 function CDF = pnsd_to_cdf(Dp, dN)
 
 % determine normalization factor
-dlogDp = diff(log10(Dp));
+dlogDp = mean(diff(log10(Dp)));
 
 % trim PNSD data
-dN = dN(1:end-1);
+% dN = dN(1:end-1);
 
 % remove dlogDp normalization
 N = dN .* dlogDp;
