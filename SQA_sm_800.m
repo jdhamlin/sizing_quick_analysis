@@ -4,7 +4,7 @@
 % of size distributions. It will then save the distribution into a .mat
 % file.
 
-function SQA_SpiderMAGIC_SOARS(SMFileName, SpiderDataName)
+function SQA_sm_800(SMFileName, SpiderDataName)
 % SMFileName: .txt file of inverted data
 % SpiderDataName: File name you want to save the distributions under for
 % further analysis
@@ -16,35 +16,20 @@ micron_meter = 1e-6; %μm to m
 
 %% Spider-MAGIC Data Import
 % Save variables
+% [Dp, dNdlog10Dp, scanNo, N, Dg, version, T, RH, V1, ion_ratio, ...
+%     last_update, numScans, t, wick_sat] = sm_800_export(SMFileName);
 
-[Dp, dNdlog10Dp, scanNo, N, Dg, version, T, RH, V1, ion_ratio, ...
-    last_update, numScans, t] = SpiderMAGIC_export(SMFileName);
+[Dp, dNdlog10Dp, ~, N, Dg, ~, T, RH, V1, ion_ratio, ...
+    last_update, numScans, t, wick_sat] = sm_800_export(SMFileName);
 
 %% Figure stadardization
 CM = turbo(numScans);
-fs = 13; % set font size
+fs = 14; % set font size
 lw = 1.5; % set line width
-ms = 2; % set marker size
+ms = 4; % set marker size
+
 %% Plot Variables of Interest
 
-%%% Figure 1: Number Concentration
-% Enter figure data
-figure(1), clf
-hold on
-for i = 1:numScans
-    semilogx(Dp, dNdlog10Dp(i,:), 'color', CM(i,:))
-end
-
-title('Number Concentrations', 'FontSize', fs)
-xlabel('Diameter [nm]', 'FontSize', fs) % set xlabel
-ylabel('dN/dlogDp [cm^{-3}]', 'FontSize', fs) % set ylabel
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
-set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
-set(gca, 'XScale', 'log')
-xlim([0 500])
-%%
-% x1 = datetime(2024,09,17,18,00,00);
-% x2 = datetime(2024,09,18,09,00,00);
 %%% Figure 2: Concentration contour plot
 figure(2), clf
 fig = tiledlayout(2,1);
@@ -61,30 +46,27 @@ axis('xy')
 ylabel('Diameter [nm]', 'FontSize', fs) % set ylabel
 set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
 set(gca, 'YScale', 'log')
-% ylim([10^1 10^3])
 ylim([0 500])
 c = colorbar;
 c.Location = 'eastoutside';
 c.TickDirection = 'out';
-% c.Position = [0.92 0.55 0.01 0.37];
 set(gca,'ColorScale','linear')
 title(c, 'dN/dlogD_p [cm^{-3}]', 'FontSize', fs-2)
 clim([0 max(N)])
-% xlim([x1 x2])
-xlim('tight')
+xlim([min(t) max(t)])
+
 
 nexttile(2)
 plot(t, N, Marker='o', ...
     MarkerEdgeColor='#404040', MarkerFaceColor='#404040', ...
     MarkerSize=ms, Color='#404040', LineWidth=lw, LineStyle='none')
 set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
-% xlim([x1 x2])
-xlim('tight')
+xlim([min(t) max(t)])
 ylim([0 max(N)])
 ylabel('N [cm^{-3}]', 'FontSize', fs) % set ylabel
 set(gca, 'YScale', 'linear')
 
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
+set(gcf, 'Units', 'normalized', 'Position', [0.1 0.1 0.5 0.8], 'Color', 'w')
 %%
 %%% Figure 3: Scan Polarity Comparison
 pu = V1 < 10 & V1 > 0;
@@ -92,38 +74,40 @@ pd = V1 > 4000;
 ni = V1 > -10 & V1 < 0;
 nd = V1 < -4000;
 
-% Set standard x and y limits
-ymin = 0;
-ymax = 5000;
-xmin = min(t);
-xmax = max(t);
-
 figure(3), clf
-
-
+hold on
 plot(t(pu), N(pu), Marker='^',...
     MarkerEdgeColor='#404040', MarkerFaceColor='#404040', ...
-    MarkerSize=ms, Color='#404040', LineWidth=lw, LineStyle='none')
-hold on
+    MarkerSize=ms, Color='#404040', LineWidth=lw, LineStyle='none', ...
+    DisplayName='HV+ Up')
 plot(t(pd), N(pd), Marker='v', ...
     MarkerEdgeColor='#404040', MarkerFaceColor='#404040', ...
-    MarkerSize=ms, Color='#404040', LineWidth=lw, LineStyle='none')
+    MarkerSize=ms, Color='#404040', LineWidth=lw, LineStyle='none', ...
+    DisplayName='HV+ Down')
 plot(t(ni), N(ni),Marker='^', ...
     MarkerEdgeColor='#ca0020', MarkerFaceColor='#ca0020', ...
-    MarkerSize=ms, Color='#ca0020', LineWidth=lw, LineStyle='none')
+    MarkerSize=ms, Color='#ca0020', LineWidth=lw, LineStyle='none', ...
+    DisplayName='HV- Up')
 plot(t(nd), N(nd), Marker='v', ...
     MarkerEdgeColor='#ca0020', MarkerFaceColor='#ca0020', ...
-    MarkerSize=ms, Color='#ca0020', LineWidth=lw, LineStyle='none')
-xlim('tight')
+    MarkerSize=ms, Color='#ca0020', LineWidth=lw, LineStyle='none', ...
+    DisplayName='HV- Down')
+xlim([min(t) max(t)])
 ylim([0 max(N)])
+
+leg = legend;
+leg.Location = 'best';
+leg.AutoUpdate = 'off';
+
 set(gca, 'YScale', 'log', 'TickDir','out')
 title('Total Number by Scan Polarity and Ramp Direction', 'FontSize', fs)
 ylabel('N [cm^{-3}]', 'FontSize', fs) % set ylabel
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
+set(gcf, 'Units', 'normalized', 'Position', [0.1 0.1 0.5 0.5], 'Color', 'w')
 set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
+xline(max(t))
+yline(max(N))
 
-
-%%% Figure 4: Colormap by Scan Polarity and Direction of Voltage Ramp
+%% Figure 4: Colormap by Scan Polarity and Direction of Voltage Ramp
 figure(4), clf
 fig = tiledlayout(4,1);
 fig.TileSpacing = 'tight';
@@ -184,7 +168,7 @@ set(gca,'ColorScale','linear')
 title('Negative, Decreasing', 'FontSize', fs)
 ylabel(fig, 'Diameter [nm]', 'FontSize', fs) % set ylabel
 
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
+set(gcf, 'Units', 'normalized', 'Position', [0.1 0.1 0.5 0.8], 'Color', 'w')
 
 for i = 1:4
     nexttile(i)
@@ -197,16 +181,18 @@ for i = 1:4
         set(gca, 'XTickLabel', ' ')
         ylabel(' ')
     end
+    xlim([min(t) max(t)])
 end
 
-%%% Figure 5: Mode and Total Concentration
+%% Figure 5: Mode and Total Concentration
 figure(5), clf
 colororder({'#67001f','#053061'})
+
 % Enter figure data
 yyaxis left
 plot(t, N, marker='o', LineWidth=lw, MarkerSize=ms)
 ylabel('N [cm^{-3}]', 'FontSize', fs) % set xlabel
-ylim([0 max(N)])
+ylim([0 1.2*max(N)])
 
 yyaxis right
 plot(t, Dg, marker='o', LineWidth=lw, MarkerSize=ms)
@@ -214,14 +200,15 @@ ylabel('Mean D_g [nm]', 'FontSize', fs) % set xlabel
 ylim([0 500])
 set(gca, 'YScale', 'log')
 
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
+set(gcf, 'Units', 'normalized', 'Position', [0.1 0.1 0.5 0.8], 'Color', 'w')
 set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
 xlim('tight')
 title('Spider-MAGIC: Total Number and Mean Geometric Diameter', 'FontSize', fs)
 
-%%% Figure 6: RH and T
+%% Figure 6: RH and T
 figure(6), clf
 colororder({'#67001f','#053061'})
+
 % Enter figure data
 yyaxis left
 plot(t, RH, marker='o', LineWidth=lw, MarkerSize=ms)
@@ -233,12 +220,12 @@ plot(t, T, marker='o', LineWidth=lw, MarkerSize=ms)
 ylabel(['Temperature [' char(176) 'C]'], 'FontSize', fs) % set xlabel
 ylim([0 40])
 
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
+set(gcf, 'Units', 'normalized', 'Position', [0.1 0.1 0.5 0.8], 'Color', 'w')
 set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
 xlim('tight')
 title('Spider-MAGIC: Temperature and Relative Humidity', 'FontSize', fs)
 
-%%% Figure 7: Concentration contour plot - X axis: scan number
+%% Figure 7: Concentration contour plot - X axis: scan number
 figure(7), clf
 fig = tiledlayout(2,1);
 fig.TileSpacing = 'tight';
@@ -265,113 +252,35 @@ plot(1:length(N), N, Marker='o', ...
     MarkerSize=ms, Color='#404040', LineWidth=lw, LineStyle='none')
 set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
 xlim('tight')
+ylim([0 1.2*max(N)])
 ylabel('N [cm^{-3}]', 'FontSize', fs) % set ylabel
 set(gca, 'YScale', 'log')
 xlabel(fig, 'Scan Number', 'FontSize', fs) % set ylabel
 
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
-
-%% Average Data and Calculate New Variables
-
-% Get New Inputs to correct data
-fprintf('Number of Spider-MAGIC scans: %d\n', numScans)
-
-% Set bounds to calculate average PNSD
-SM_start = input('Enter the initial SM scan of interest: ');
-SM_stop = input('Enter the final SM scan of interest: ');
-
-% Create start and stop scan variable to save for reference
-AvgPeriod = [SM_start SM_stop];
-
-RH_avg = mean(RH(SM_start:SM_stop));
-T_avg = mean(T(SM_start:SM_stop));
-
-mean_dNdlogDp_SM = mean(dNdlog10Dp(SM_start:SM_stop,:));
-mean_dNdlogDp_SM(isnan(mean_dNdlogDp_SM)) = 0;
-
-% Calculate Surface Area and Volume Concentrations
-mean_dSAdlogDp_SM = ...
-    4*pi*((Dp/2)*nanometer_meter/micron_meter).^2.*mean_dNdlogDp_SM;
-mean_dVdlogDp_SM = ...
-    4/3*pi*((Dp/2)*nanometer_meter/micron_meter).^3.*mean_dNdlogDp_SM;
-dN_norm = mean_dNdlogDp_SM/trapz(log10(Dp), mean_dNdlogDp_SM);
-dSA_norm = mean_dSAdlogDp_SM/trapz(log10(Dp), mean_dSAdlogDp_SM);
-dV_norm = mean_dVdlogDp_SM/trapz(log10(Dp), mean_dVdlogDp_SM);
-
-%% Replot Variables of Interest
-
-%%% Figure 7 Update
-% Add red vertical line indicating scan period averaged over
-figure(7)
-nexttile(1)
-xline(SM_start,Color='r',LineWidth=lw)
-xline(SM_stop,Color='r',LineWidth=lw)
-
-nexttile(2)
-xline(SM_start,Color='r',LineWidth=lw)
-xline(SM_stop,Color='r',LineWidth=lw)
-
-%%% Figure 8: Mean Number Concentration
-% Enter figure data
-figure(8), clf
-hold on
-plot(Dp, mean_dNdlogDp_SM, Color='k', LineWidth=lw, Marker='o', ...
-    MarkerSize=ms)
-
-title('Average Particle Number Size Distribution', 'FontSize', fs)
-xlabel('Diameter [nm]', 'FontSize', fs) % set xlabel
-ylabel('dN/dlogDp [cm^{-3}]', 'FontSize', fs) % set ylabel
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
-set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
-set(gca, 'XScale', 'log')
-xlim([0 500])
-
-%%% Figure 9: N, SA, and M distributions
-figure(9), clf
-hold on
-semilogx(Dp, dN_norm, Color='k', ...
-    LineWidth=lw, Marker='o', MarkerSize=ms)
-
-semilogx(Dp, dSA_norm, Color='r', ...
-    LineWidth=lw, Marker='o', MarkerSize=ms)
-semilogx(Dp, dV_norm, Color='b', ...
-    LineWidth=lw, Marker='o', MarkerSize=ms)
-
-
-title('Normalized Distribution Moments', 'FontSize', fs)
-xlabel('Diameter [nm]', 'FontSize', fs) % set xlabel
-ylabel('Normalized Distribution Moments', 'FontSize', fs) % set ylabel
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
-set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
-set(gca, 'XScale', 'log')
-xlim([0 500])
-legend('1^{st} Moment [Number Density]', '2^{nd} Moment [Surface Area Density]', ...
-    '3^{rd} Moment [Volume Density]', 'Location', 'southoutside', ...
-    'Orientation', 'horizontal', 'FontSize', fs)
-legend boxoff
+set(gcf, 'Units', 'normalized', 'Position', [0.1 0.1 0.5 0.8], 'Color', 'w')
 
 %% Save Data  
-distribution(1).name = 'Spider-MAGIC';
-distribution(1).D = Dp; % Units: nm
-distribution(1).dN = dNdlog10Dp;
-distribution(1).N = N;
-distribution(1).Dg = Dg;
-distribution(1).T = T;
-distribution(1).RH = RH;
-distribution(1).V1 = V1;
-distribution(1).ion_ratio = ion_ratio;
-distribution(1).last_update = last_update;
-distribution(1).t = t;
-% Averaged data
-distribution(1).AvgPeriod = AvgPeriod;
-distribution(1).RH_avg = RH_avg;
-distribution(1).T_avg = T_avg;
-distribution(1).mean_dNdlogDp = mean_dNdlogDp_SM;
-distribution(1).mean_dSAdlogDp = mean_dSAdlogDp_SM;
-distribution(1).mean_dVdlogDp = mean_dVdlogDp_SM;
+distribution.name = 'Spider-MAGIC';
+distribution.D = Dp; % Units: nm
+distribution.dN = dNdlog10Dp;
+distribution.N = N;
+distribution.Dg = Dg;
+distribution.T = T;
+distribution.RH = RH;
+distribution.V1 = V1;
+distribution.ion_ratio = ion_ratio;
+distribution.last_update = last_update;
+distribution.t = t;
+distribution.wick_sat = wick_sat;
 
 %% Save data files
-cd C:\Users\justi\OneDrive\Documents\0_UCSD\Research\Data\2025\2025_SpiderMAGIC_mat\SQA\
+
+matDir = uigetdir('C:/Users/justi/OneDrive/Documents/0_UCSD/Research/Data/', ...
+    'Select directory to save .mat file');
+if matDir == 0
+    disp('.mat save cancelled')
+    return
+end
 save(sprintf('%s.mat', SpiderDataName), 'distribution')
 
 return
