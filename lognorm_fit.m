@@ -1,44 +1,93 @@
 %%% lognormal size distribution fit
+% lognorm3_fit
+function [Dp_fit, dN_fit, N, Dg, sigma_g, pFit] = lognorm_fit(Dp, dN)
 
-function [Dp_fit, dN_fit, N, Dg, sigma_g] = lognorm_fit(Dp, dN)
+% Remove invalid values
+valid = isfinite(Dp) & isfinite(dN) & Dp > 0 & dN > 0;
 
-% remove zeros and NaNs
-valid = dN > 0 & ~isnan(dN);
 Dp = Dp(valid);
 dN = dN(valid);
 
-% lognormal model
-lognorm = @(p, Dp) ...
-    (p(1) ./ (sqrt(2*pi) * log(p(3)))) .* ...
-    exp(-(log(Dp) - log(p(2))).^2 ./ (2*log(p(3)).^2));
+% Sort by diameter
+[Dp, idx] = sort(Dp);
+dN = dN(idx);
 
-% improved initial guesses
-N0 = max(dN);
-Dg0 = Dp(dN == max(dN));
-sigma_g0 = 2.0;
+%%% Three-mode lognormal model
+% p = [N1 Dg1 sigma1 N2 Dg2 sigma2 N3 Dg3 sigma3]
 
-p0 = [N0, Dg0, sigma_g0];
+lognorm3 = @(p,Dp) ...
+    (p(1) ./ (sqrt(2*pi)*log(p(3)))) .* ...
+    exp(-(log(Dp)-log(p(2))).^2 ./ ...
+    (2*log(p(3)).^2)) + ...
+    (p(4) ./ (sqrt(2*pi)*log(p(6)))) .* ...
+    exp(-(log(Dp)-log(p(5))).^2 ./ ...
+    (2*log(p(6)).^2)) + ...
+    (p(7) ./ (sqrt(2*pi)*log(p(9)))) .* ...
+    exp(-(log(Dp)-log(p(8))).^2 ./ ...
+    (2*log(p(9)).^2));
 
-% bounds
-lb = [0, min(Dp)*0.5, 1.05];
-ub = [Inf, max(Dp)*2, 5.0];
+%%% Initial guesses
+% These should roughly correspond to:
+% nucleation, Aitken, accumulation
+N_total = trapz(log(Dp), dN);
 
-% epsilon to avoid log(0)
+N1 = 0.2*N_total;
+N2 = 0.4*N_total;
+N3 = 0.4*N_total;
+
+Dg1 = 15;
+Dg2 = 50;
+Dg3 = 150;
+
+sigma1 = 1.5;
+sigma2 = 1.7;
+sigma3 = 1.8;
+
+p0 = [N1 Dg1 sigma1 ...
+      N2 Dg2 sigma2 ...
+      N3 Dg3 sigma3];
+
+%%% Bounds
+
+lb = [ ...
+    0, min(Dp), 1.05, ...
+    0, min(Dp), 1.05, ...
+    0, min(Dp), 1.05];
+
+ub = [ ...
+    Inf, max(Dp), 3.0, ...
+    Inf, max(Dp), 3.0, ...
+    Inf, max(Dp), 3.0];
+
+%%% Objective in log space
 eps_val = 1e-12;
 
-% objective in log-space
-obj = @(p, Dp) log(dN + eps_val) - log(lognorm(p, Dp) + eps_val);
+obj = @(p,Dp) ...
+    log(dN + eps_val) - ...
+    log(lognorm3(p,Dp) + eps_val);
 
-opts = optimoptions('lsqcurvefit','Display','off');
+%%% Fit
+opts = optimoptions('lsqcurvefit', ...
+    'Display','off', ...
+    'MaxFunctionEvaluations',5000, ...
+    'MaxIterations',2000);
 
-[pFit, ~] = lsqcurvefit(obj, p0, Dp, zeros(size(dN)), lb, ub, opts);
+[pFit,~,~,exitflag] = lsqcurvefit( ...
+    obj, p0, Dp, zeros(size(dN)), lb, ub, opts);
 
-% output
-N = pFit(1);
-Dg = pFit(2);
-sigma_g = pFit(3);
+%%% Extract parameters
+N = [pFit(1), pFit(4), pFit(7)];
 
-Dp_fit = logspace(log10(min(Dp)), log10(max(Dp)), 500);
-dN_fit = lognorm(pFit, Dp_fit);
+Dg = [pFit(2), pFit(5), pFit(8)];
+
+sigma_g = [pFit(3), pFit(6), pFit(9)];
+
+%%% Fitted distribution
+Dp_fit = logspace( ...
+    log10(min(Dp)), ...
+    log10(max(Dp)), ...
+    500);
+
+dN_fit = lognorm3(pFit,Dp_fit);
 
 end

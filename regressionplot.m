@@ -67,7 +67,7 @@ yoff = 0.08*dataRange;
 
 text(ax, xpos, ypos, r_str, 'FontSize', fs-2, 'FontWeight','normal');
 text(ax, xpos, ypos - yoff, eq_str, 'FontSize', fs-2, 'FontWeight', 'normal');
-text(ax, xpos, ypos - 2*yoff, rmse_str, 'FontSize', fs-2, 'FontWeight', 'normal');
+% text(ax, xpos, ypos - 2*yoff, rmse_str, 'FontSize', fs-2, 'FontWeight', 'normal');
 
 
 % Clean variable name
