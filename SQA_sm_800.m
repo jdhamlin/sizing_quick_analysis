@@ -24,9 +24,9 @@ micron_meter = 1e-6; %μm to m
 
 %% Figure stadardization
 CM = turbo(numScans);
-fs = 14; % set font size
+fs = 12; % set font size
 lw = 1.5; % set line width
-ms = 4; % set marker size
+ms = 2; % set marker size
 
 %% Plot Variables of Interest
 

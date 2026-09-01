@@ -24,7 +24,7 @@ micron_meter = 1e-6; %μm to m
 
 %% Figure stadardization
 CM = turbo(numScans);
-fs = 13; % set font size
+fs = 12; % set font size
 lw = 1.5; % set line width
 ms = 2; % set marker size
 %% Plot Variables of Interest
@@ -154,105 +154,115 @@ set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
 
 %% Average Data and Calculate New Variables
 
-% Get New Inputs to correct data
-fprintf('Number of SMPS scans: %d\n', numScans)
-
-% Set bounds to calculate average PNSD
-SMPS_start = input('Enter the initial SMPS scan of interest: ');
-SMPS_stop = input('Enter the final SMPS scan of interest: ');
-
-% Create start and stop scan variable to save for reference
-AvgPeriod = [SMPS_start SMPS_stop];
-
-% RH_avg = mean(RH_a(SMPS_start:SMPS_stop));
-% T_avg = mean(T_a(SMPS_start:SMPS_stop));
-
-mean_dNdlogDp_SMPS = mean(dNdlog10Dp(SMPS_start:SMPS_stop,:));
-mean_dNdlogDp_SMPS(isnan(mean_dNdlogDp_SMPS)) = 0;
-
-% Calculate Surface Area and Volume Concentrations
-mean_dSAdlogDp_SMPS = ...
-    4*pi*((Dp/2)*nanometer_meter/micron_meter).^2.*mean_dNdlogDp_SMPS;
-mean_dVdlogDp_SMPS = ...
-    4/3*pi*((Dp/2)*nanometer_meter/micron_meter).^3.*mean_dNdlogDp_SMPS;
-dN_norm = mean_dNdlogDp_SMPS/trapz(log10(Dp), mean_dNdlogDp_SMPS);
-dSA_norm = mean_dSAdlogDp_SMPS/trapz(log10(Dp), mean_dSAdlogDp_SMPS);
-dV_norm = mean_dVdlogDp_SMPS/trapz(log10(Dp), mean_dVdlogDp_SMPS);
+% % Get New Inputs to correct data
+% fprintf('Number of SMPS scans: %d\n', numScans)
+% 
+% % Set bounds to calculate average PNSD
+% SMPS_start = input('Enter the initial SMPS scan of interest: ');
+% SMPS_stop = input('Enter the final SMPS scan of interest: ');
+% 
+% % Create start and stop scan variable to save for reference
+% AvgPeriod = [SMPS_start SMPS_stop];
+% 
+% % RH_avg = mean(RH_a(SMPS_start:SMPS_stop));
+% % T_avg = mean(T_a(SMPS_start:SMPS_stop));
+% 
+% mean_dNdlogDp_SMPS = mean(dNdlog10Dp(SMPS_start:SMPS_stop,:));
+% mean_dNdlogDp_SMPS(isnan(mean_dNdlogDp_SMPS)) = 0;
+% 
+% % Calculate Surface Area and Volume Concentrations
+% mean_dSAdlogDp_SMPS = ...
+%     4*pi*((Dp/2)*nanometer_meter/micron_meter).^2.*mean_dNdlogDp_SMPS;
+% mean_dVdlogDp_SMPS = ...
+%     4/3*pi*((Dp/2)*nanometer_meter/micron_meter).^3.*mean_dNdlogDp_SMPS;
+% dN_norm = mean_dNdlogDp_SMPS/trapz(log10(Dp), mean_dNdlogDp_SMPS);
+% dSA_norm = mean_dSAdlogDp_SMPS/trapz(log10(Dp), mean_dSAdlogDp_SMPS);
+% dV_norm = mean_dVdlogDp_SMPS/trapz(log10(Dp), mean_dVdlogDp_SMPS);
 
 %% Replot Variables of Interest
 
-%%% Figure 7 Update
-% Add red vertical line indicating scan period averaged over
-figure(7)
-nexttile(1)
-xline(SMPS_start,Color='r',LineWidth=lw)
-xline(SMPS_stop,Color='r',LineWidth=lw)
-
-nexttile(2)
-xline(SMPS_start,Color='r',LineWidth=lw)
-xline(SMPS_stop,Color='r',LineWidth=lw)
-
-%%% Figure 8: Mean Number Concentration
-% Enter figure data
-figure(8), clf
-hold on
-plot(Dp, mean_dNdlogDp_SMPS, Color='k', LineWidth=lw, Marker='none', ...
-    MarkerSize=ms)
-
-title('Average Particle Number Size Distribution', 'FontSize', fs)
-xlabel('Diameter [nm]', 'FontSize', fs) % set xlabel
-ylabel('dN/dlogDp [cm^{-3}]', 'FontSize', fs) % set ylabel
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
-set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
-set(gca, 'XScale', 'log')
-xlim([10^1 10^3])
-
-%%% Figure 9: N, SA, and M distributions
-figure(9), clf
-hold on
-semilogx(Dp, dN_norm, Color='k', ...
-    LineWidth=lw, Marker='none', MarkerSize=ms)
-
-semilogx(Dp, dSA_norm, Color='r', ...
-    LineWidth=lw, Marker='none', MarkerSize=ms)
-semilogx(Dp, dV_norm, Color='b', ...
-    LineWidth=lw, Marker='none', MarkerSize=ms)
-
-
-title('Normalized Distribution Moments', 'FontSize', fs)
-xlabel('Diameter [nm]', 'FontSize', fs) % set xlabel
-ylabel('Normalized Distribution Moments', 'FontSize', fs) % set ylabel
-set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
-set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
-set(gca, 'XScale', 'log')
-xlim([10 1000])
-legend('1^{st} Moment [Number Density]', '2^{nd} Moment [Surface Area Density]', ...
-    '3^{rd} Moment [Volume Density]', 'Location', 'southoutside', ...
-    'Orientation', 'horizontal', 'FontSize', fs)
-legend boxoff
+% %%% Figure 7 Update
+% % Add red vertical line indicating scan period averaged over
+% figure(7)
+% nexttile(1)
+% xline(SMPS_start,Color='r',LineWidth=lw)
+% xline(SMPS_stop,Color='r',LineWidth=lw)
+% 
+% nexttile(2)
+% xline(SMPS_start,Color='r',LineWidth=lw)
+% xline(SMPS_stop,Color='r',LineWidth=lw)
+% 
+% %%% Figure 8: Mean Number Concentration
+% % Enter figure data
+% figure(8), clf
+% hold on
+% plot(Dp, mean_dNdlogDp_SMPS, Color='k', LineWidth=lw, Marker='none', ...
+%     MarkerSize=ms)
+% 
+% title('Average Particle Number Size Distribution', 'FontSize', fs)
+% xlabel('Diameter [nm]', 'FontSize', fs) % set xlabel
+% ylabel('dN/dlogDp [cm^{-3}]', 'FontSize', fs) % set ylabel
+% set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
+% set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
+% set(gca, 'XScale', 'log')
+% xlim([10^1 10^3])
+% 
+% %%% Figure 9: N, SA, and M distributions
+% figure(9), clf
+% hold on
+% semilogx(Dp, dN_norm, Color='k', ...
+%     LineWidth=lw, Marker='none', MarkerSize=ms)
+% 
+% semilogx(Dp, dSA_norm, Color='r', ...
+%     LineWidth=lw, Marker='none', MarkerSize=ms)
+% semilogx(Dp, dV_norm, Color='b', ...
+%     LineWidth=lw, Marker='none', MarkerSize=ms)
+% 
+% 
+% title('Normalized Distribution Moments', 'FontSize', fs)
+% xlabel('Diameter [nm]', 'FontSize', fs) % set xlabel
+% ylabel('Normalized Distribution Moments', 'FontSize', fs) % set ylabel
+% set(gcf,'Position',[50 50 1000 800],'Color','w') % set standard figure size
+% set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
+% set(gca, 'XScale', 'log')
+% xlim([10 1000])
+% legend('1^{st} Moment [Number Density]', '2^{nd} Moment [Surface Area Density]', ...
+%     '3^{rd} Moment [Volume Density]', 'Location', 'southoutside', ...
+%     'Orientation', 'horizontal', 'FontSize', fs)
+% legend boxoff
 
 %% Save Data  
-distribution(1).name = 'SMPS';
-distribution(1).D = Dp; % Units: nm
-distribution(1).dN = dNdlog10Dp;
-distribution(1).N = N;
-distribution(1).Dg = Dg;
-distribution(1).T = T_a;
-distribution(1).RH = RH_a;
-distribution(1).last_update = last_update;
-distribution(1).t = t;
+distribution.name = 'SMPS';
+distribution.D = Dp; % Units: nm
+distribution.dN = dNdlog10Dp;
+distribution.N = N;
+distribution.Dg = Dg;
+distribution.T = T_a;
+distribution.RH = RH_a;
+distribution.last_update = last_update;
+distribution.t = t;
 
-% % Averaged data
-distribution(1).AvgPeriod = AvgPeriod;
-distribution(1).RH_avg = RH_avg;
-distribution(1).T_avg = T_avg;
-distribution(1).mean_dNdlogDp = mean_dNdlogDp_SMPS;
-distribution(1).mean_dSAdlogDp = mean_dSAdlogDp_SMPS;
-distribution(1).mean_dVdlogDp = mean_dVdlogDp_SMPS;
+% % % Averaged data
+% distribution.AvgPeriod = AvgPeriod;
+% distribution.RH_avg = RH_avg;
+% distribution.T_avg = T_avg;
+% distribution.mean_dNdlogDp = mean_dNdlogDp_SMPS;
+% distribution.mean_dSAdlogDp = mean_dSAdlogDp_SMPS;
+% distribution.mean_dVdlogDp = mean_dVdlogDp_SMPS;
 
 
 % cd C:/Users/justi/OneDrive/Documents/0_UCSD/Research/Data/2026/experiments/mart_surfactants/sizing/processed/
-cd C:/Users/justi/OneDrive/Documents/0_UCSD/Research/Data/2025/2025_smps_mat/
+% cd C:/Users/justi/OneDrive/Documents/0_UCSD/Research/Data/2025/2025_smps_mat/
+% save(sprintf('%s.mat', SMPSDataName), 'distribution')
+
+%% Save data files
+
+matDir = uigetdir('C:/Users/justi/OneDrive/Documents/0_UCSD/Research/Data/', ...
+    'Select directory to save .mat file');
+if matDir == 0
+    disp('.mat save cancelled')
+    return
+end
 save(sprintf('%s.mat', SMPSDataName), 'distribution')
 
 return

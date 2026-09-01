@@ -29,30 +29,41 @@ opts.DataLines = [varLine+1 Inf];
 opts.VariableNamingRule = 'preserve';
 A = readtable(file, opts);
 
-
-    
 % Extract variables
-Dp = A.Properties.VariableNames(39:end);
+varNames = A.Properties.VariableNames;
+Dp = A.Properties.VariableNames(43:end);
 Dp = str2double(string(Dp));
-dNdlog10Dp = table2array(A(1:end, 39:end));
+dNdlog10Dp = table2array(A(1:end, 43:end));
 [numScans, ~] = size(dNdlog10Dp);
 scanNo = table2array(A(1:end,1));
-N = table2array(A(1:end, 36));
-Dg = table2array(A(1:end, 33));
-T_sh = table2array(A(1:end, 13));
-t = table2array(A(1:end, 2));
-RH_a = table2array(A(1:end, 37));
-T_a = table2array(A(1:end, 38));
 
-% conditional loop to input NaN if no RHT was logged
-if string(A{1, 37}) == "N/A" && string(A{1, 38}) == "N/A"
+idx = string(varNames) == 'Total Concentration (#/cm³)';
+N = table2array(A(1:end, idx));
+
+idx = string(varNames) == 'Geo. Mean (nm)';
+Dg = table2array(A(1:end, idx));
+
+idx = string(varNames) == 'Sheath Temp (C)';
+T_sh = table2array(A(1:end, idx));
+
+idx = string(varNames) == 'DateTime Sample Start';
+t = table2array(A(1:end, idx));
+
+idx1 = string(varNames) == 'Aerosol Humidity (%)';
+RH_a = table2array(A(1:end, idx1));
+
+idx2 = string(varNames) == 'Aerosol Temperature (C)';
+T_a = table2array(A(1:end, idx2));
+
+% conditional loop to input NaN if no aerosol RHT was logged
+if string(A{1, idx1}) == "N/A" && string(A{1, idx2}) == "N/A"
     for i = 1:numScans
         RH_a{i,1} = NaN;
         T_a{i,1} = NaN;
     end
 else
-    RH_a = table2array(A(1:end, 37));
-    T_a = table2array(A(1:end, 38));
+    RH_a = table2array(A(1:end, idx1));
+    T_a = table2array(A(1:end, idx2));
 end
 
 
