@@ -1,0 +1,48 @@
+%% OPS_3330_row_export
+% Purpose: Extract variables from row exported dW/dlogDp data from TSI
+% Model 3330 Optical Particle Sizer
+% Author: Justin Hamlin
+% Date: 20240906
+
+function [Dp, dNdlog10Dp, numScans, scanNo, N, Dg, T, t, last_update, mode] = ...
+    ops_3330_export(file)
+
+% open file and scan for row containing Sample #
+fid = fopen(file); 
+C = textscan(fid, '%s %*[^\n]', 'Delimiter', ',');
+fclose(fid);
+col1 = string(C{1});
+varLine = find(col1 == "Sample #", 1, 'first');
+
+% include +1 offset due to blank row in data file
+offset = 1;
+varLine = varLine + offset;
+
+% set import options
+opts = detectImportOptions(file);
+opts.VariableNamesLine = varLine;
+
+opts = setvaropts(opts, "Var2", "InputFormat", "MM/dd/uuuu");
+dataLines = varLine + 1;
+opts.DataLines = [dataLines Inf];
+opts.VariableNamingRule = 'preserve';
+data = readtable(file, opts);
+
+% Extract variables
+Dp = str2double(string(data.Properties.VariableNames(18:end)));
+dNdlog10Dp = table2array(data(1:end,18:end));
+[numScans,~] = size(dNdlog10Dp);
+scanNo = data.("Sample #");
+N = data.("Total Conc. (#/cm³)");
+Dg = data.("Geo. Mean");
+T = data.("Temp(C)");
+date = data.Date;
+time = data.("Start Time");
+t = date + time;
+t.Format = 'default';
+mode = data.Mode;
+
+% log last update
+last_update = datetime('now');  
+
+end

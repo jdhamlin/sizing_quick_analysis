@@ -22,7 +22,7 @@ micron_meter = 1e-6; %μm to m
 [Dp, dNdlog10Dp, ~, N, Dg, ~, T, RH, V1, ion_ratio, ...
     last_update, numScans, t, wick_sat] = sm_800_export(SMFileName);
 
-%% Figure stadardization
+%% Figure standardization
 CM = turbo(numScans);
 fs = 12; % set font size
 lw = 1.5; % set line width
@@ -277,10 +277,12 @@ distribution.wick_sat = wick_sat;
 
 matDir = uigetdir('C:/Users/justi/OneDrive/Documents/0_UCSD/Research/Data/', ...
     'Select directory to save .mat file');
-if matDir == 0
+if matDir ~= 0
+    cd(matDir)
+    save(sprintf('%s.mat', SpiderDataName), 'distribution')
+else
     disp('.mat save cancelled')
     return
 end
-save(sprintf('%s.mat', SpiderDataName), 'distribution')
 
 return
