@@ -134,9 +134,11 @@ distribution.t = t;
 %% Save data files
 matDir = uigetdir('C:/Users/justi/OneDrive/Documents/0_UCSD/Research/Data/', ...
     'Select directory to save .mat file');
-if matDir == 0
+if matDir ~= 0
+    cd(matDir)
+    save(sprintf('%s.mat', APSDataName), 'distribution')
+else
     disp('.mat save cancelled')
     return
 end
-save(sprintf('%s.mat', APSDataName), 'distribution')
 end

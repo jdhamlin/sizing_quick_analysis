@@ -19,13 +19,14 @@ offset = 1;
 varLine = varLine + offset;
 
 % set import options
-opts = detectImportOptions(file, "VariableNamingRule", "preserve");
+opts = detectImportOptions(file);
 opts.VariableNamesLine = varLine;
 
-opts = setvaropts(opts, 2, "InputFormat", "MM/dd/uuuu");
+% opts = setvaropts(opts, "Var2", "InputFormat", "MM/dd/uuuu");
 dataLines = varLine + 1;
 opts.DataLines = [dataLines Inf];
 opts.VariableNamingRule = 'preserve';
+opts = setvaropts(opts, , "InputFormat", "MM/dd/uuuu");
 data = readtable(file, opts);
 
 % Extract variables

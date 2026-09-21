@@ -205,10 +205,12 @@ set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
 xlim('tight')
 title('Spider-MAGIC: Total Number and Mean Geometric Diameter', 'FontSize', fs)
 
-%% Figure 6: RH and T
+%% Figure 6: RH and T and wick sat
 figure(6), clf
-colororder({'#67001f','#053061'})
+tiledlayout(2,1,"TileSpacing","loose","Padding","loose")
+colororder({'#67001f','#053061', '#1a1a1a'})
 
+nexttile
 % Enter figure data
 yyaxis left
 plot(t, RH, marker='o', LineWidth=lw, MarkerSize=ms)
@@ -220,9 +222,18 @@ plot(t, T, marker='o', LineWidth=lw, MarkerSize=ms)
 ylabel(['Temperature [' char(176) 'C]'], 'FontSize', fs) % set xlabel
 ylim([0 40])
 
+nexttile
+plot(t, wick_sat, Marker='none', LineStyle='-', LineWidth=lw)
+ylabel('Wick Saturation [%]', 'FontSize', fs)
+
 set(gcf, 'Units', 'normalized', 'Position', [0.1 0.1 0.5 0.8], 'Color', 'w')
-set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
-xlim('tight')
+
+for i = 1:2
+    nexttile(i)
+    ax = gca;
+    ax.FontSize = fs;
+    ax.TickDir = 'out';
+end
 title('Spider-MAGIC: Temperature and Relative Humidity', 'FontSize', fs)
 
 %% Figure 7: Concentration contour plot - X axis: scan number
