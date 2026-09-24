@@ -1,6 +1,8 @@
 %% sizing_stats
 % Justin Hamlin
 % created: 8/11/2025
+% [mode_D, N_nucleation, N_aitken, N_accumulation, N_submicron, ...
+% N_supermicron, N, Dg, sigma_g] = sizing_stats(D, dN)
 
 %%% produces: 
 % 1. mode diameter
