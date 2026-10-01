@@ -35,7 +35,7 @@ fig.TileSpacing = 'tight';
 
 % Enter figure data
 nexttile(1)
-colormap(turbo)
+colormap(jet)
 
 imagesc(t, Dp, dNdlog10Dp');
 hold on
@@ -46,9 +46,9 @@ set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
 set(gca, 'YScale', 'log')
 ylim([10^1 10^3])
 colorbar
-set(gca,'ColorScale','linear')
+set(gca,'ColorScale','log')
 title(colorbar, 'dN/dlogD_p [cm^{-3}]', 'FontSize', fs)
-clim([0 1.2*max(N)])
+clim([1e1 1e4])
 xlim('tight')
 
 nexttile(2)

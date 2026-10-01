@@ -37,7 +37,7 @@ fig.TileSpacing = 'tight';
 
 % Enter figure data
 nexttile(1)
-colormap(turbo)
+colormap(jet)
 
 imagesc(t, Dp, dNdlog10Dp');
 hold on
@@ -50,16 +50,16 @@ ylim([0 500])
 c = colorbar;
 c.Location = 'eastoutside';
 c.TickDirection = 'out';
-set(gca,'ColorScale','linear')
+set(gca,'ColorScale','log')
 title(c, 'dN/dlogD_p [cm^{-3}]', 'FontSize', fs-2)
-clim([0 max(N)])
+clim([1e1 1e4])
 xlim([min(t) max(t)])
 
 
 nexttile(2)
-plot(t, N, Marker='o', ...
+plot(t, N, Marker='none', ...
     MarkerEdgeColor='#404040', MarkerFaceColor='#404040', ...
-    MarkerSize=ms, Color='#404040', LineWidth=lw, LineStyle='none')
+    MarkerSize=ms, Color='#404040', LineWidth=lw, LineStyle='-')
 set(gca,'FontSize',fs,'TickDir','out') % set figure color to white, tick dir out
 xlim([min(t) max(t)])
 ylim([0 max(N)])
@@ -234,7 +234,6 @@ for i = 1:2
     ax.FontSize = fs;
     ax.TickDir = 'out';
 end
-title('Spider-MAGIC: Temperature and Relative Humidity', 'FontSize', fs)
 
 %% Figure 7: Concentration contour plot - X axis: scan number
 figure(7), clf
